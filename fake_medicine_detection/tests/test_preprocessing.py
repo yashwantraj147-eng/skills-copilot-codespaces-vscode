@@ -1,9 +1,13 @@
 """Unit tests for the preprocessing module."""
 
+import types
+import sys
+
 import numpy as np
 import pytest
 
 from fake_medicine_detection.preprocessing import (
+    load_image_from_bytes,
     normalize,
     preprocess_image,
     resize_bilinear,
@@ -79,3 +83,23 @@ class TestPreprocessImage:
         raw = np.zeros((40, 40, 5), dtype=np.uint8)
         with pytest.raises(ValueError, match="Unsupported image shape"):
             preprocess_image(raw)
+
+
+class TestLoadImageFromBytes:
+    def test_uses_pillow_when_available(self, monkeypatch):
+        class _FakeImage:
+            def convert(self, mode):
+                assert mode == "RGB"
+                return self
+
+            def __array__(self, dtype=None, copy=None):
+                arr = np.arange(12, dtype=np.uint8).reshape(2, 2, 3)
+                return arr.astype(dtype or np.uint8, copy=False)
+
+        fake_pil = types.ModuleType("PIL")
+        fake_pil.Image = types.SimpleNamespace(open=lambda _: _FakeImage())
+        monkeypatch.setitem(sys.modules, "PIL", fake_pil)
+
+        out = load_image_from_bytes(b"fake-image-bytes")
+        assert out.shape == (2, 2, 3)
+        assert out.dtype == np.uint8

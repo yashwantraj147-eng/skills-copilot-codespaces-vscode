@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from fake_medicine_detection.features import (
+    _run_lengths,
     analyse_barcode,
     analyse_colour_deviation,
     analyse_font_inconsistency,
@@ -114,6 +115,11 @@ class TestSealAnalyser:
         score = analyse_seal(img)["seal_anomaly_score"]
         assert score == pytest.approx(0.0, abs=1e-4)
 
+    def test_empty_image_returns_zero(self):
+        img = np.zeros((3, 0, 0), dtype=np.float32)
+        score = analyse_seal(img)["seal_anomaly_score"]
+        assert score == 0.0
+
 
 class TestExtractAllFeatures:
     def test_all_keys_present(self):
@@ -135,3 +141,9 @@ class TestExtractAllFeatures:
         score_keys = [k for k in result if k.endswith("_score") and k != "overall_anomaly_score"]
         expected_mean = np.mean([result[k] for k in score_keys])
         assert result["overall_anomaly_score"] == pytest.approx(expected_mean, abs=1e-4)
+
+
+class TestInternalUtilities:
+    def test_run_lengths_empty_input(self):
+        out = _run_lengths(np.array([], dtype=np.int8))
+        assert out.size == 0
