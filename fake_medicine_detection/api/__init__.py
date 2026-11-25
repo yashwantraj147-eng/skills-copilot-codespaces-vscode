@@ -71,13 +71,13 @@ class _Handler(BaseHTTPRequestHandler):
     # ------------------------------------------------------------------
 
     def do_POST(self) -> None:
+        length = int(self.headers.get("Content-Length", 0))
+        body = self.rfile.read(length) if length > 0 else b""
+
         parsed = urlparse(self.path)
         if parsed.path != "/predict":
             self._send_json({"error": "Not found"}, status=404)
             return
-
-        length = int(self.headers.get("Content-Length", 0))
-        body = self.rfile.read(length)
 
         try:
             payload = json.loads(body.decode("utf-8"))
