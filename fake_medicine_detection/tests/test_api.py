@@ -4,25 +4,38 @@ import base64
 import http.client
 import io
 import json
+import struct
 import threading
+import zlib
 from contextlib import contextmanager
 from http.server import HTTPServer
 
 import numpy as np
-import pytest
 
 import fake_medicine_detection.api as api_module
 from fake_medicine_detection.api import _Handler, _verdict, create_app
 
 
-def _dummy_image_b64(h: int = 16, w: int = 16) -> str:
-    """Create a base64-encoded PNG-like byte payload.
+def _png_chunk(tag: bytes, payload: bytes) -> bytes:
+    crc = zlib.crc32(tag + payload) & 0xFFFFFFFF
+    return struct.pack(">I", len(payload)) + tag + payload + struct.pack(">I", crc)
 
-    We use a raw bytes approach so the test has no Pillow dependency.
-    The API falls back to a placeholder image when Pillow is absent.
+
+def _dummy_image_b64(h: int = 16, w: int = 16) -> str:
+    """Create a base64-encoded valid RGB PNG payload using only the stdlib.
+
+    Works both when Pillow decodes real PNG bytes and when Pillow is absent.
     """
-    data = np.random.randint(0, 255, (h, w, 3), dtype=np.uint8).tobytes()
-    return base64.b64encode(data).decode()
+    pixels = np.random.randint(0, 255, (h, w, 3), dtype=np.uint8)
+    raw_scanlines = b"".join(b"\x00" + pixels[y].tobytes() for y in range(h))
+    ihdr = struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0)
+    png_bytes = (
+        b"\x89PNG\r\n\x1a\n"
+        + _png_chunk(b"IHDR", ihdr)
+        + _png_chunk(b"IDAT", zlib.compress(raw_scanlines))
+        + _png_chunk(b"IEND", b"")
+    )
+    return base64.b64encode(png_bytes).decode()
 
 
 def _wsgi_request(app, method: str, path: str, body: bytes = b""):

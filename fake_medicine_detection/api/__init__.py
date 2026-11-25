@@ -58,7 +58,7 @@ class _Handler(BaseHTTPRequestHandler):
     # GET /health
     # ------------------------------------------------------------------
 
-    def do_GET(self) -> None:  # noqa: N802
+    def do_GET(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path == "/health":
             self._send_json({"status": "ok", "model": "FakeMedicineDetectorCNN"})
@@ -69,7 +69,7 @@ class _Handler(BaseHTTPRequestHandler):
     # POST /predict
     # ------------------------------------------------------------------
 
-    def do_POST(self) -> None:  # noqa: N802
+    def do_POST(self) -> None:
         parsed = urlparse(self.path)
         if parsed.path != "/predict":
             self._send_json({"error": "Not found"}, status=404)

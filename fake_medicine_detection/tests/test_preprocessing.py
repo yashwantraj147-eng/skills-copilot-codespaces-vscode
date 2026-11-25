@@ -1,7 +1,7 @@
 """Unit tests for the preprocessing module."""
 
-import types
 import sys
+import types
 
 import numpy as np
 import pytest

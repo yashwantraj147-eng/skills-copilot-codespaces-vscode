@@ -11,12 +11,11 @@ from typing import Dict
 
 import numpy as np
 
-
 # ---------------------------------------------------------------------------
 # Font inconsistency analyser
 # ---------------------------------------------------------------------------
 
-def analyse_font_inconsistency(image: np.ndarray) -> Dict[str, float]:
+def analyse_font_inconsistency(image: np.ndarray) -> dict[str, float]:
     """Detect font irregularities caused by low-quality counterfeit printing.
 
     Method:
@@ -56,7 +55,7 @@ def analyse_colour_deviation(
     image: np.ndarray,
     reference_mean: np.ndarray | None = None,
     reference_std: np.ndarray | None = None,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Measure colour deviation from an expected (reference) distribution.
 
     For a genuine product the per-channel colour distribution is tightly
@@ -87,7 +86,7 @@ def analyse_colour_deviation(
 # Barcode anomaly analyser
 # ---------------------------------------------------------------------------
 
-def analyse_barcode(image: np.ndarray) -> Dict[str, float]:
+def analyse_barcode(image: np.ndarray) -> dict[str, float]:
     """Detect barcode anomalies by checking bar regularity.
 
     Genuine barcodes have alternating black/white bars of regular widths.
@@ -123,7 +122,7 @@ def analyse_barcode(image: np.ndarray) -> Dict[str, float]:
     score = float(np.clip(cv / 2.0, 0.0, 1.0))
     return {
         "barcode_anomaly_score": round(score, 4),
-        "bar_count": int(len(runs)),
+        "bar_count": len(runs),
     }
 
 
@@ -131,7 +130,7 @@ def analyse_barcode(image: np.ndarray) -> Dict[str, float]:
 # Seal pattern analyser
 # ---------------------------------------------------------------------------
 
-def analyse_seal(image: np.ndarray) -> Dict[str, float]:
+def analyse_seal(image: np.ndarray) -> dict[str, float]:
     """Evaluate tamper-evident seal integrity.
 
     Genuine seals typically exhibit:
@@ -170,7 +169,7 @@ def analyse_seal(image: np.ndarray) -> Dict[str, float]:
 # Aggregate extractor
 # ---------------------------------------------------------------------------
 
-def extract_all_features(image: np.ndarray) -> Dict[str, float]:
+def extract_all_features(image: np.ndarray) -> dict[str, float]:
     """Run all feature extractors and return a consolidated result.
 
     Args:
@@ -180,7 +179,7 @@ def extract_all_features(image: np.ndarray) -> Dict[str, float]:
         dict containing all per-extractor scores plus a combined
         ``overall_anomaly_score`` that averages all component scores.
     """
-    results: Dict[str, float] = {}
+    results: dict[str, float] = {}
     results.update(analyse_font_inconsistency(image))
     results.update(analyse_colour_deviation(image))
     results.update(analyse_barcode(image))

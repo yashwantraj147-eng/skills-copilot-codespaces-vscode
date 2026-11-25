@@ -7,9 +7,8 @@ from typing import Tuple
 
 import numpy as np
 
-
 # Target spatial resolution fed into the CNN.
-DEFAULT_TARGET_SIZE: Tuple[int, int] = (64, 64)
+DEFAULT_TARGET_SIZE: tuple[int, int] = (64, 64)
 
 
 def resize_bilinear(
@@ -73,7 +72,7 @@ def to_chw(image: np.ndarray) -> np.ndarray:
 
 def preprocess_image(
     raw: np.ndarray,
-    target_size: Tuple[int, int] = DEFAULT_TARGET_SIZE,
+    target_size: tuple[int, int] = DEFAULT_TARGET_SIZE,
 ) -> np.ndarray:
     """Full preprocessing pipeline for a raw medicine packaging image.
 

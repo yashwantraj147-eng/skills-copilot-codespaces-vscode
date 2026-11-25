@@ -2,7 +2,6 @@
 
 import numpy as np
 
-
 # ---------------------------------------------------------------------------
 # Model architecture (pure-NumPy reference implementation)
 # This keeps the package dependency-free for environments without TensorFlow/
