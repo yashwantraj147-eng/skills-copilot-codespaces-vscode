@@ -21,6 +21,7 @@ or via gunicorn::
 from __future__ import annotations
 
 import base64
+import binascii
 import json
 import os
 import traceback
@@ -94,7 +95,7 @@ class _Handler(BaseHTTPRequestHandler):
 
         try:
             image_bytes = base64.b64decode(image_b64)
-        except Exception as exc:
+        except (ValueError, TypeError, binascii.Error) as exc:
             self._send_json(
                 {"error": f"Failed to decode base64 image: {exc}"}, status=400
             )
@@ -102,7 +103,7 @@ class _Handler(BaseHTTPRequestHandler):
 
         try:
             raw = _decode_image_bytes(image_bytes)
-        except Exception as exc:
+        except (OSError, ValueError) as exc:
             self._send_json(
                 {"error": f"Failed to decode image: {exc}"}, status=400
             )
@@ -112,7 +113,7 @@ class _Handler(BaseHTTPRequestHandler):
             processed = preprocess_image(raw)
             cnn_result = _model.predict(processed)
             feature_scores = extract_all_features(processed)
-        except Exception:  # pragma: no cover
+        except Exception:  # noqa: BLE001
             self._send_json(
                 {"error": "Internal error during inference", "detail": traceback.format_exc()},
                 status=500,
@@ -218,7 +219,7 @@ def create_app():
                     "verdict": _verdict(cnn_result, feature_scores),
                 }
                 status = "200 OK"
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001
                 result = {"error": str(exc)}
                 status = "400 Bad Request"
 

@@ -93,7 +93,7 @@ class TestHealthEndpoint:
         assert data["status"] == "ok"
 
     def test_unknown_path_returns_404(self):
-        status, data = _wsgi_request(self.app, "GET", "/nonexistent")
+        status, _data = _wsgi_request(self.app, "GET", "/nonexistent")
         assert status.startswith("404")
 
 
@@ -116,7 +116,7 @@ class TestPredictEndpoint:
         assert "error" in data
 
     def test_predict_invalid_json_returns_400(self):
-        status, data = _wsgi_request(self.app, "POST", "/predict", b"not json")
+        status, _data = _wsgi_request(self.app, "POST", "/predict", b"not json")
         assert status.startswith("400")
 
     def test_verdict_in_expected_values(self):

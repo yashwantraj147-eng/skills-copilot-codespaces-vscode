@@ -7,8 +7,6 @@ anomaly signal (i.e. greater likelihood of counterfeiting).
 
 from __future__ import annotations
 
-from typing import Dict
-
 import numpy as np
 
 # ---------------------------------------------------------------------------
@@ -108,7 +106,7 @@ def analyse_barcode(image: np.ndarray) -> dict[str, float]:
             ``bar_count`` (int – number of distinct bars detected)
     """
     gray = _to_gray_chw(image)  # (H, W)
-    h, w = gray.shape
+    h, _w = gray.shape
     scanline = gray[h // 2, :]  # centre row
 
     threshold = 0.5
